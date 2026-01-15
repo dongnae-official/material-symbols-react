@@ -17,6 +17,7 @@ This is a fork of `@nine-thirty-five/material-symbols-react` with additional upd
 - [Usage](#usage)
   - [Importing](#importing)
   - [Component Props](#component-props)
+- [Publishing](#publishing)
 - [License](#license)
 
 ## Installation
@@ -89,6 +90,10 @@ import { Search, Home, Star } from '@dongnae/material-symbols-react';
 ```
 
 > Note: the wrappers support the `size` prop, which sets both the height and width simultaneously.
+
+## Publishing
+
+This repo uses npm Trusted Publishing (OIDC) for GitHub Actions, so no long-lived `NPM_TOKEN` is required.
 
 ## License
 
