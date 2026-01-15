@@ -22,14 +22,17 @@ on:
 jobs:
   update:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: write
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - uses: git-actions/set-user@v1
 
       - name: Setup Node
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: 20.x
           registry-url: https://registry.npmjs.org/
@@ -44,6 +47,7 @@ jobs:
 
       - id: update
         run: |
+          output_file="${GITHUB_OUTPUT:-/tmp/github_output}"
           force="${{ github.event.inputs.force }}"
           dry="${{ github.event.inputs.dry }}"
           bump="${{ github.event.inputs.bump }}"
@@ -56,7 +60,7 @@ jobs:
           npm run check || status=$?
           if [ $status -eq 0 ] || [ $status -eq 4 ]; then
             if [ "$force" != "1" ]; then
-              echo "::set-output name=trigger_release::no"
+              echo "trigger_release=no" >> "$output_file"
               exit 0 # exit if there are no changes or if icons are only removed
             fi
           fi
@@ -73,11 +77,11 @@ jobs:
 
           # Push
           if [ "$dry" = "1" ]; then
-            echo "::set-output name=trigger_release::no"
+            echo "trigger_release=no" >> "$output_file"
             exit 0
           fi
           git push --follow-tags
-          echo "::set-output name=trigger_release::yes"
+          echo "trigger_release=yes" >> "$output_file"
     outputs:
       trigger_release: ${{ steps.update.outputs.trigger_release }}
 

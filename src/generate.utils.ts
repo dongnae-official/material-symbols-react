@@ -1,8 +1,36 @@
 import fs from 'fs';
 import path from 'path';
-import puppeteer, { Browser } from 'puppeteer';
+import puppeteer, { Browser, Page } from 'puppeteer';
 
 type Variant = 'outlined' | 'sharp' | 'rounded';
+const NAV_TIMEOUT_MS = 120000;
+const SCROLL_DELAY_MS = 2000;
+const MAX_SCROLLS = 40;
+
+function delay(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+async function scrollToLoadIcons(page: Page) {
+  let previousCount = 0;
+
+  for (let i = 0; i < MAX_SCROLLS; i++) {
+    const currentCount = await page.evaluate(
+      () => document.querySelectorAll('gf-load-icon-font').length
+    );
+
+    if (currentCount > previousCount) {
+      previousCount = currentCount;
+    } else if (i > 0) {
+      break;
+    }
+
+    await page.evaluate(() => {
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+    await delay(SCROLL_DELAY_MS);
+  }
+}
 
 function capitalize(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
@@ -125,43 +153,60 @@ async function getIconList(
   variant?: Variant
 ): Promise<string[]> {
   const page = await browser.newPage();
+  page.setDefaultTimeout(NAV_TIMEOUT_MS);
 
-  await page.goto(
-    variant
-      ? `https://fonts.google.com/icons?icon.style=${capitalize(variant)}`
-      : 'https://fonts.google.com/icons'
-  );
+  try {
+    await page.goto(
+      variant
+        ? `https://fonts.google.com/icons?icon.style=${capitalize(variant)}`
+        : 'https://fonts.google.com/icons',
+      { waitUntil: 'domcontentloaded', timeout: NAV_TIMEOUT_MS }
+    );
 
-  await page.waitForTimeout(1000);
-  await page.evaluate(() => {
-    window.scrollTo(0, document.body.scrollHeight);
-  });
-  await page.waitForTimeout(1000);
+    await page.waitForSelector('gf-load-icon-font', {
+      timeout: NAV_TIMEOUT_MS,
+    });
+    await scrollToLoadIcons(page);
 
-  const iconList = await page.evaluate(() => {
-    const spans = Array.from(document.querySelectorAll('gf-load-icon-font'));
+    const iconList = await page.evaluate(() => {
+      const spans = Array.from(document.querySelectorAll('gf-load-icon-font'));
 
-    return spans.map((span) => span.textContent?.trim() ?? '');
-  });
+      return spans.map((span) => span.textContent?.trim() ?? '');
+    });
 
-  return iconList.filter((name) => !!name);
+    return iconList.filter((name) => !!name);
+  } finally {
+    await page.close();
+  }
 }
 
 async function scraper(browser: Browser, url: string): Promise<string | null> {
   const newPage = await browser.newPage();
-  await newPage.goto(encodeURI(url));
+  newPage.setDefaultTimeout(NAV_TIMEOUT_MS);
 
-  const content = await newPage.evaluate(() => {
-    const element = document.querySelector('svg');
+  try {
+    await newPage.goto(encodeURI(url), {
+      waitUntil: 'domcontentloaded',
+      timeout: NAV_TIMEOUT_MS,
+    });
+    await newPage.waitForSelector('svg', { timeout: NAV_TIMEOUT_MS });
 
-    if (element) {
-      return element.outerHTML;
-    }
+    const content = await newPage.evaluate(() => {
+      const element = document.querySelector('svg');
+
+      if (element) {
+        return element.outerHTML;
+      }
+      return null;
+    });
+
+    return content;
+  } catch (error) {
+    console.error('Failed to load SVG', url, error);
     return null;
-  });
-  newPage.close();
-
-  return content;
+  } finally {
+    await newPage.close();
+  }
 }
 
 async function getIconsSVG(
@@ -215,18 +260,18 @@ async function svgToComponent(name: string, svg: string, folder: string) {
   return fs.promises.writeFile(
     `./icons/${folder}/${componentName}.tsx`,
     `
-      import React from "react";
-      import { IconProps } from "${
-        folder.includes('filled') ? '../../types' : '../types'
-      }";
+import React from "react";
+import { IconProps } from "${
+      folder.includes('filled') ? '../../types' : '../types'
+    }";
 
-      const ${componentName} = (props: IconProps) => {
-        return <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 -960 960 960" fill="currentColor" {...props} >
-          <path d="${extractContent(svg)}" />
-        </svg>
-      };
+const ${componentName} = (props: IconProps) => {
+  return <svg xmlns="http://www.w3.org/2000/svg" height="24" width="24" viewBox="0 -960 960 960" fill="currentColor" {...props} >
+    <path d="${extractContent(svg)}" />
+  </svg>
+};
 
-      export default ${componentName};
+export default ${componentName};
     `
   );
 }
@@ -330,4 +375,53 @@ export function readFilesRecursively(
   readDir(folderPath);
 
   return files;
+}
+
+export async function generateIconWrapper(name: string, outputDir: string) {
+  const pascal = toPascalCase(convertNumbersToWords(name));
+  const wrapper = `
+import React from 'react'
+import { IconWrapperProps } from './types'
+
+export const ${pascal} = ({ variant = 'outlined', filled, ...props }: IconWrapperProps) => {
+  const importPath = \`./\${variant}\${filled ? "/filled" : ""}/${pascal}\`;
+
+  const LazyIcon = React.useMemo(
+    () => React.lazy(() => import(importPath)),
+    [importPath]
+  )
+
+  return (
+    <React.Suspense fallback={null}>
+      <LazyIcon {...props} />
+    </React.Suspense>
+  )
+}
+export default ${pascal}
+  `.trim();
+  await fs.promises.writeFile(path.join(outputDir, `${pascal}.tsx`), wrapper);
+}
+
+export function filterExcludeIndexFile(files: string[]): string[] {
+  return files.filter((file) => {
+    const posix = file.replace(/\\/g, '/');
+    return path.basename(posix) !== 'index.tsx';
+  });
+}
+
+export function parseFileForIndexGeneration(file: string): {
+  name: string;
+  path: string;
+} {
+  const posix = file.replace(/\\/g, '/');
+  const name = posix.substring(
+    posix.lastIndexOf('/') + 1,
+    posix.lastIndexOf('.')
+  );
+  const relPath = `./${name}`;
+
+  return {
+    name,
+    path: relPath,
+  };
 }

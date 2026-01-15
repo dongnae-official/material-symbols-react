@@ -23,18 +23,18 @@ This is a fork of `@nine-thirty-five/material-symbols-react` with additional upd
 
 ```sh
 # npm
-npm install @dnk/material-symbols-react
+npm install @dongnae/material-symbols-react
 
 # yarn
-yarn add @dnk/material-symbols-react
+yarn add @dongnae/material-symbols-react
 
 # pnpm
-pnpm add @dnk/material-symbols-react
+pnpm add @dongnae/material-symbols-react
 ```
 
 ## Usage
 
-`@dnk/material-symbols-react` provides three Material icon **variants** in both **_default_** and **_filled_** types.
+`@dongnae/material-symbols-react` provides three Material icon **variants** in both **_default_** and **_filled_** types.
 
 Icon variants are:
 
@@ -48,16 +48,16 @@ There are two ways to import an icon based on your prefered type and variant.
 
 ```tsx
 // Outlined variant
-import { Search } from '@dnk/material-symbols-react/outlined';
-import { Home } from '@dnk/material-symbols-react/outlined/filled';
+import { Search } from '@dongnae/material-symbols-react/outlined';
+import { Home } from '@dongnae/material-symbols-react/outlined/filled';
 
 // Rounded variant
-import { Star } from '@dnk/material-symbols-react/rounded';
-import { Favorite } from '@dnk/material-symbols-react/rounded/filled';
+import { Star } from '@dongnae/material-symbols-react/rounded';
+import { Favorite } from '@dongnae/material-symbols-react/rounded/filled';
 
 // Sharp variant
-import { Delete } from '@dnk/material-symbols-react/sharp';
-import { Login } from '@dnk/material-symbols-react/sharp/filled';
+import { Delete } from '@dongnae/material-symbols-react/sharp';
+import { Login } from '@dongnae/material-symbols-react/sharp/filled';
 ```
 
 ### Component Props
@@ -80,7 +80,7 @@ The icon wrapper is a component that internally decides which icon variant to di
 
 ```tsx
 // Outlined variant
-import { Search, Home, Star } from '@dnk/material-symbols-react';
+import { Search, Home, Star } from '@dongnae/material-symbols-react';
 
 // Sample props
 <Search variant="outlined" className="yourClassName" />
@@ -96,13 +96,13 @@ Material design icons are created by [Google](https://github.com/google/material
 
 > We have made these icons available for you to incorporate into your products under the Apache License Version 2.0. Feel free to remix and re-share these icons and documentation in your products. We'd love attribution in your app's about screen, but it's not required.
 
-[npm-url]: https://www.npmjs.com/package/@dnk/material-symbols-react
-[npm-image]: https://img.shields.io/npm/v/@dnk/material-symbols-react
-[download-image]: https://img.shields.io/npm/dm/@dnk/material-symbols-react
-[npm-downloads]: https://www.npmjs.com/package/@dnk/material-symbols-react
+[npm-url]: https://www.npmjs.com/package/@dongnae/material-symbols-react
+[npm-image]: https://img.shields.io/npm/v/@dongnae/material-symbols-react
+[download-image]: https://img.shields.io/npm/dm/@dongnae/material-symbols-react
+[npm-downloads]: https://www.npmjs.com/package/@dongnae/material-symbols-react
 [github-license]: https://img.shields.io/github/license/dongnae-official/material-symbols-react
 [github-license-url]: https://github.com/dongnae-official/material-symbols-react/blob/master/LICENSE
 [github-build]: https://github.com/dongnae-official/material-symbols-react/actions/workflows/publish.yml/badge.svg
 [github-build-url]: https://github.com/dongnae-official/material-symbols-react/actions/workflows/publish.yml
-[npm-typescript]: https://img.shields.io/npm/types/@dnk/material-symbols-react
+[npm-typescript]: https://img.shields.io/npm/types/@dongnae/material-symbols-react
 [license]: https://github.com/dongnae-official/material-symbols-react/blob/main/LICENSE
