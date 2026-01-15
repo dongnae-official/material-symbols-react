@@ -2,6 +2,8 @@
 
 Use [Google's Material Symbols (icons)](https://fonts.google.com/icons?icon.set=Material+Symbols) in React with ease.
 
+This is a fork of `@nine-thirty-five/material-symbols-react` with additional updates.
+
 <div align="center">
 
 [![NPM version][npm-image]][npm-url]
@@ -21,18 +23,18 @@ Use [Google's Material Symbols (icons)](https://fonts.google.com/icons?icon.set=
 
 ```sh
 # npm
-npm install @nine-thirty-five/material-symbols-react
+npm install @dnk/material-symbols-react
 
 # yarn
-yarn add @nine-thirty-five/material-symbols-react
+yarn add @dnk/material-symbols-react
 
 # pnpm
-pnpm add @nine-thirty-five/material-symbols-react
+pnpm add @dnk/material-symbols-react
 ```
 
 ## Usage
 
-`@nine-thirty-five/material-symbols-react` provides three Material icon **variants** in both **_default_** and **_filled_** types.
+`@dnk/material-symbols-react` provides three Material icon **variants** in both **_default_** and **_filled_** types.
 
 Icon variants are:
 
@@ -44,25 +46,25 @@ Icon variants are:
 
 There are two ways to import an icon based on your prefered type and variant.
 
-```ts
+```tsx
 // Outlined variant
-import { Search } from '@nine-thirty-five/material-symbols-react/outlined';
-import { Home } from '@nine-thirty-five/material-symbols-react/outlined/filled';
+import { Search } from '@dnk/material-symbols-react/outlined';
+import { Home } from '@dnk/material-symbols-react/outlined/filled';
 
 // Rounded variant
-import { Star } from '@nine-thirty-five/material-symbols-react/rounded';
-import { Favorite } from '@nine-thirty-five/material-symbols-react/rounded/filled';
+import { Star } from '@dnk/material-symbols-react/rounded';
+import { Favorite } from '@dnk/material-symbols-react/rounded/filled';
 
 // Sharp variant
-import { Delete } from '@nine-thirty-five/material-symbols-react/sharp';
-import { Login } from '@nine-thirty-five/material-symbols-react/sharp/filled';
+import { Delete } from '@dnk/material-symbols-react/sharp';
+import { Login } from '@dnk/material-symbols-react/sharp/filled';
 ```
 
 ### Component Props
 
 Icon component support all props that a React SVG component supports.
 
-```ts
+```tsx
 // Sample props
 <Search className="yourClassName" />
 <Home style={{fill: 'red'}} />
@@ -72,19 +74,35 @@ Icon component support all props that a React SVG component supports.
 <Login viewBox='0 0 24 24' />
 ```
 
+## Using icon wrapper
+
+The icon wrapper is a component that internally decides which icon variant to display using the `variant` and `filled` props.
+
+```tsx
+// Outlined variant
+import { Search, Home, Star } from '@dnk/material-symbols-react';
+
+// Sample props
+<Search variant="outlined" className="yourClassName" />
+<Home variant="sharp" style={{fill: 'red'}} />
+<Star variant="sharp" size='1rem' filled />
+```
+
+> Note: the wrappers support the `size` prop, which sets both the height and width simultaneously.
+
 ## License
 
 Material design icons are created by [Google](https://github.com/google/material-design-icons#license).
 
 > We have made these icons available for you to incorporate into your products under the Apache License Version 2.0. Feel free to remix and re-share these icons and documentation in your products. We'd love attribution in your app's about screen, but it's not required.
 
-[npm-url]: https://www.npmjs.com/package/@nine-thirty-five/material-symbols-react
-[npm-image]: https://img.shields.io/npm/v/@nine-thirty-five/material-symbols-react
-[download-image]: https://img.shields.io/npm/dm/@nine-thirty-five/material-symbols-react
-[npm-downloads]: https://www.npmjs.com/package/@nine-thirty-five/material-symbols-react
-[github-license]: https://img.shields.io/github/license/nine-thirty-five/material-symbols-react
-[github-license-url]: https://github.com/nine-thirty-five/material-symbols-react/blob/master/LICENSE
-[github-build]: https://github.com/nine-thirty-five/material-symbols-react/actions/workflows/publish.yml/badge.svg
-[github-build-url]: https://github.com/nine-thirty-five/material-symbols-react/actions/workflows/publish.yml
-[npm-typescript]: https://img.shields.io/npm/types/@nine-thirty-five/material-symbols-react
-[license]: https://github.com/nine-thirty-five/material-symbols-react/blob/main/LICENSE
+[npm-url]: https://www.npmjs.com/package/@dnk/material-symbols-react
+[npm-image]: https://img.shields.io/npm/v/@dnk/material-symbols-react
+[download-image]: https://img.shields.io/npm/dm/@dnk/material-symbols-react
+[npm-downloads]: https://www.npmjs.com/package/@dnk/material-symbols-react
+[github-license]: https://img.shields.io/github/license/dongnae-official/material-symbols-react
+[github-license-url]: https://github.com/dongnae-official/material-symbols-react/blob/master/LICENSE
+[github-build]: https://github.com/dongnae-official/material-symbols-react/actions/workflows/publish.yml/badge.svg
+[github-build-url]: https://github.com/dongnae-official/material-symbols-react/actions/workflows/publish.yml
+[npm-typescript]: https://img.shields.io/npm/types/@dnk/material-symbols-react
+[license]: https://github.com/dongnae-official/material-symbols-react/blob/main/LICENSE
