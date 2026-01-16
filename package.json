@@ -19,7 +19,7 @@
     "./sharp/filled": "./dist/esm/sharp/filled/index.js"
   },
   "scripts": {
-    "prepare": "husky install",
+    "prepare": "node -e \"if (process.env.CI) process.exit(0); try { require('husky').install(); } catch (e) { console.warn('husky not installed'); }\"",
     "check": "bun run download:metadata -- --status --dry-run",
     "update": "bun run generate && bun run build",
     "download": "bun run download:metadata",
