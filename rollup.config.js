@@ -3,10 +3,11 @@ import typescript from '@rollup/plugin-typescript';
 import peerDepsExternal from 'rollup-plugin-peer-deps-external';
 import terser from '@rollup/plugin-terser';
 import dts from 'rollup-plugin-dts';
-import { glob } from 'glob';
+import pkg from 'glob';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+const { glob } = pkg;
 const shouldMinify = process.env.MINIFY === 'true';
 const skipTypes = process.env.SKIP_TYPES === 'true';
 

@@ -28,13 +28,13 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install
 
       - name: Generate
-        run: npm run generate
+        run: bun run generate
 
       - name: Build
-        run: npm run build
+        run: bun run build
 
       - name: Publish
-        run: npm publish --access public
+        run: bun publish --access public
