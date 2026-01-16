@@ -36,8 +36,12 @@ jobs:
       - name: Build
         run: bun run build
 
+      - name: Update npm
+        run: npm install -g npm@latest
+
       - name: Publish
         env:
+          NPM_CONFIG_PROVENANCE: "true"
           NODE_AUTH_TOKEN: ""
         run: |
           npm config delete //registry.npmjs.org/:_authToken || true
