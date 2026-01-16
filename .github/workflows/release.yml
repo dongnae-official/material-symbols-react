@@ -20,7 +20,7 @@ jobs:
         id: set_tag
         run: |
           latest_tag=$(git describe --tags --abbrev=0)
-          echo "::set-output name=tag::${latest_tag}"
+          echo "tag=${latest_tag}" >> "$GITHUB_OUTPUT"
 
       - name: Release
         run: gh release create "${{ steps.set_tag.outputs.tag }}"
