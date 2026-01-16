@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import puppeteer, { Browser, Page } from 'puppeteer';
+import puppeteer, { Page } from 'puppeteer';
 
 type Variant = 'outlined' | 'sharp' | 'rounded';
 const NAV_TIMEOUT_MS = 120000;
@@ -97,6 +97,10 @@ function convertNumbersToWords(input: string): string {
   };
 
   function convertThreeDigitNumberToWords(num: number): string {
+    if (num === 0) {
+      return numericalWords['0'];
+    }
+
     let result = '';
 
     const hundreds = Math.floor(num / 100);
@@ -148,10 +152,16 @@ function extractContent(svgString: string) {
   }
 }
 
-async function getIconList(
-  browser: Browser,
-  variant?: Variant
-): Promise<string[]> {
+async function getIconList(variant?: Variant): Promise<string[]> {
+  const metadataPath = path.resolve(process.cwd(), '_data', 'versions.json');
+
+  if (fs.existsSync(metadataPath)) {
+    const raw = await fs.promises.readFile(metadataPath, 'utf8');
+    const data = JSON.parse(raw) as Record<string, unknown>;
+    return Object.keys(data);
+  }
+
+  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
   const page = await browser.newPage();
   page.setDefaultTimeout(NAV_TIMEOUT_MS);
 
@@ -177,40 +187,30 @@ async function getIconList(
     return iconList.filter((name) => !!name);
   } finally {
     await page.close();
+    await browser.close();
   }
 }
 
-async function scraper(browser: Browser, url: string): Promise<string | null> {
-  const newPage = await browser.newPage();
-  newPage.setDefaultTimeout(NAV_TIMEOUT_MS);
-
+async function fetchSvg(url: string): Promise<string | null> {
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), NAV_TIMEOUT_MS);
   try {
-    await newPage.goto(encodeURI(url), {
-      waitUntil: 'domcontentloaded',
-      timeout: NAV_TIMEOUT_MS,
-    });
-    await newPage.waitForSelector('svg', { timeout: NAV_TIMEOUT_MS });
-
-    const content = await newPage.evaluate(() => {
-      const element = document.querySelector('svg');
-
-      if (element) {
-        return element.outerHTML;
-      }
+    const response = await fetch(encodeURI(url), { signal: controller.signal });
+    if (!response.ok) {
+      console.error('Failed to fetch SVG', url, response.status);
       return null;
-    });
+    }
 
-    return content;
+    return await response.text();
   } catch (error) {
     console.error('Failed to load SVG', url, error);
     return null;
   } finally {
-    await newPage.close();
+    clearTimeout(timeout);
   }
 }
 
 async function getIconsSVG(
-  browser: Browser,
   iconNames: string[],
   variant: Variant,
   isFilled: boolean,
@@ -236,7 +236,7 @@ async function getIconsSVG(
         }/24px.svg`;
         console.log;
 
-        const content = await scraper(browser, url);
+        const content = await fetchSvg(url);
 
         if (!content) nullIcons.push(url);
 
@@ -283,15 +283,12 @@ export async function generateIconVariant(
   nullIcons: string[],
   iconList?: string[]
 ) {
-  const browser = await puppeteer.launch({ args: ['--no-sandbox'] });
-
   try {
     if (!iconList) {
-      iconList = await getIconList(browser, variant);
+      iconList = await getIconList(variant);
     }
 
     const iconSVGs = await getIconsSVG(
-      browser,
       iconList,
       variant,
       isFilled,
@@ -328,8 +325,6 @@ export async function generateIconVariant(
       `Failed to generate ${variant}${isFilled ? '-filled' : ''} variants`,
       error
     );
-  } finally {
-    await browser.close();
   }
 }
 
