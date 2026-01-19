@@ -376,19 +376,41 @@ export async function generateIconWrapper(name: string, outputDir: string) {
   const pascal = toPascalCase(convertNumbersToWords(name));
   const wrapper = `
 import React from 'react'
-import { IconWrapperProps } from './types'
+import { IconProps, IconWrapperProps } from './types'
 
-export const ${pascal} = ({ variant = 'outlined', filled, ...props }: IconWrapperProps) => {
-  const importPath = \`./\${variant}\${filled ? "/filled" : ""}/${pascal}\`;
+type LazyIconProps = Omit<IconProps, 'ref'>
 
+const loadIcon = (
+  variant: IconWrapperProps['variant'],
+  filled?: boolean
+): Promise<{ default: React.ComponentType<LazyIconProps> }> => {
+  if (variant === 'outlined') {
+    return filled
+      ? import('./outlined/filled/${pascal}')
+      : import('./outlined/${pascal}');
+  }
+
+  if (variant === 'rounded') {
+    return filled
+      ? import('./rounded/filled/${pascal}')
+      : import('./rounded/${pascal}');
+  }
+
+  return filled
+    ? import('./sharp/filled/${pascal}')
+    : import('./sharp/${pascal}');
+}
+
+export const ${pascal} = (props: IconWrapperProps) => {
+  const { variant = 'outlined', filled, ...iconProps } = props;
   const LazyIcon = React.useMemo(
-    () => React.lazy(() => import(importPath)),
-    [importPath]
+    () => React.lazy(() => loadIcon(variant, filled)),
+    [variant, filled]
   )
 
   return (
     <React.Suspense fallback={null}>
-      <LazyIcon {...props} />
+      <LazyIcon {...(iconProps as LazyIconProps)} />
     </React.Suspense>
   )
 }
