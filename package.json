@@ -1,6 +1,6 @@
 {
   "name": "@dongnae/material-symbols-react",
-  "version": "2.0.3",
+  "version": "2.0.4",
   "description": "Flexible React package based on Google's Material Icons",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -31,6 +31,7 @@
     "download:font": "bunx --yes @material-design-icons/scripts download font --to iconfont",
     "download:metadata": "bunx @material-design-icons/scripts download metadata --symbols",
     "generate": "bun ./src/generate.ts",
+    "generate:indexes": "bun ./src/generate.indexes.ts",
     "generate:wrappers": "bun ./src/generate.wrappers.ts",
     "clean": "rimraf dist",
     "prebuild": "bun run clean",
@@ -46,6 +47,7 @@
     "LICENSE",
     "README.md"
   ],
+  "sideEffects": false,
   "keywords": [
     "react",
     "react-component",

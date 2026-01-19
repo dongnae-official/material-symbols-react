@@ -337,14 +337,11 @@ export async function generateIndexFile(
     `${files
       .map(
         (file) =>
-          `import ${toPascalCase(convertNumbersToWords(file.name))} from '${
-            file.path
-          }';\n`
+          `export { default as ${toPascalCase(
+            convertNumbersToWords(file.name)
+          )} } from '${file.path}';\n`
       )
-      .join('')}\nexport {\n${files
-      .map((file) => `${toPascalCase(convertNumbersToWords(file.name))},\n`)
-      .join('')}}
-    `
+      .join('')}`
   );
 }
 
