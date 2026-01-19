@@ -34,7 +34,7 @@ jobs:
         run: bun run generate
 
       - name: Build
-        run: bun run build
+        run: NODE_OPTIONS=--max-old-space-size=4096 bun run build
 
       - name: Update npm
         run: npm install -g npm@latest
