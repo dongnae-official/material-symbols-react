@@ -43,7 +43,7 @@ jobs:
           bun-version: latest
 
       - name: Install dependencies
-        run: npm ci
+        run: bun install
 
       - id: update
         run: |
@@ -57,7 +57,7 @@ jobs:
 
           # Check for Updates
           status=0
-          npm run check || status=$?
+          bun run check || status=$?
           if [ $status -eq 0 ] || [ $status -eq 4 ]; then
             if [ "$force" != "1" ]; then
               echo "trigger_release=no" >> "$output_file"
@@ -69,7 +69,8 @@ jobs:
           fi
 
           # Download new metadata
-          npm run download:metadata
+          bun run download:metadata
+          bun run generate:wrappers
           git add .
 
           # Bump Version
